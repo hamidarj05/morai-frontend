@@ -1,40 +1,75 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../auth/authService";
- 
+import { getCities } from "../api/jsonApi";
+
 import {
   AiFillHome,
   AiOutlinePlusCircle,
   AiOutlineMessage,
   AiOutlineFileText,
-  AiOutlineUser, 
-} from "react-icons/ai"; 
+  AiOutlineUser,
+} from "react-icons/ai";
 
 export default function ClientLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [cities, setCities] = useState([]);
+  const [loadingCities, setLoadingCities] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
- 
+
+  // fetch cities
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const res = await getCities();
+        setCities(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch cities:", err);
+      } finally {
+        setLoadingCities(false);
+      }
+    };
+
+    fetchCities();
+  }, []);
+
+  // check admin
   useEffect(() => {
     const user = localStorage.getItem("currentUser");
     const parsedUser = user ? JSON.parse(user) : null;
-    if (parsedUser && parsedUser.role === "admin") {
+    if (parsedUser?.role === "admin") {
       setIsAdmin(true);
     }
   }, []);
-  
+
   function go(path) {
     navigate(path);
   }
- 
+
   function doLogout() {
     logout();
     navigate("/login");
-  } 
-  function isActive(path) {
-    return location.pathname === path || location.pathname.startsWith(path + "/");
   }
+
+  function isActive(path) {
+    return (
+      location.pathname === path ||
+      location.pathname.startsWith(path + "/")
+    );
+  }
+
+  // wait until cities loaded
+  if (loadingCities) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
+        Loading...
+      </div>
+    );
+  }
+
+  const firstCityId = cities?.[0]?.id;
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -47,7 +82,6 @@ export default function ClientLayout() {
             </div>
           </div>
 
-          {/* Layout desktop */}
           <div className="grid sm:grid-cols-[260px_1fr] min-h-[85vh]">
             <div className="hidden sm:block border-r border-white/10 bg-slate-900/60 p-3">
               <nav className="space-y-2">
@@ -55,21 +89,21 @@ export default function ClientLayout() {
                   onClick={() => go("/feed")}
                   className="w-full text-left flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 hover:bg-white/10"
                 >
-                    Feed
+                  Feed
                 </button>
 
                 <button
                   onClick={() => go("/create")}
                   className="w-full text-left flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 hover:bg-white/10"
                 >
-                     Create Post
+                  Create Post
                 </button>
 
                 <button
-                  onClick={() => go("/chat/1")}
+                  onClick={() => firstCityId && go("/chat/" + firstCityId)}
                   className="w-full text-left flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 hover:bg-white/10"
                 >
-                  Ai Guide
+                  AI Guide
                 </button>
 
                 <button
@@ -83,25 +117,25 @@ export default function ClientLayout() {
                   onClick={() => go("/profile")}
                   className="w-full text-left flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 hover:bg-white/10"
                 >
-                   Profile
+                  Profile
                 </button>
 
                 <div className="pt-2 mt-2 border-t border-white/10" />
 
-                {isAdmin ? (
+                {isAdmin && (
                   <button
                     onClick={() => go("/admin")}
                     className="w-full text-left flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 hover:bg-white/10"
                   >
-                   Admin Panel
+                    Admin Panel
                   </button>
-                ) : null}
+                )}
 
                 <button
                   className="w-full text-left flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 hover:bg-white/10"
                   onClick={doLogout}
                 >
-                   Logout
+                  Logout
                 </button>
               </nav>
             </div>
@@ -113,13 +147,12 @@ export default function ClientLayout() {
         </div>
       </div>
 
-      {/* style app */}
+      {/* Mobile nav */}
       <div
         className="fixed bottom-0 left-0 right-0 z-50 sm:hidden border-t border-white/10 bg-slate-950/90 backdrop-blur"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="grid grid-cols-5">
-          {/* Feed */}
           <button
             onClick={() => go("/feed")}
             className={
@@ -131,7 +164,6 @@ export default function ClientLayout() {
             <span className="text-[11px]">Feed</span>
           </button>
 
-          {/* Create */}
           <button
             onClick={() => go("/create")}
             className={
@@ -143,9 +175,8 @@ export default function ClientLayout() {
             <span className="text-[11px]">Create</span>
           </button>
 
-          {/* AI */}
           <button
-            onClick={() => go("/chat/1")}
+            onClick={() => firstCityId && go("/chat/" + firstCityId)}
             className={
               "py-2 flex flex-col items-center gap-1 " +
               (isActive("/chat") ? "text-white" : "text-white/60")
@@ -155,7 +186,6 @@ export default function ClientLayout() {
             <span className="text-[11px]">AI</span>
           </button>
 
-          {/* Posts */}
           <button
             onClick={() => go("/userPosts")}
             className={
@@ -167,7 +197,6 @@ export default function ClientLayout() {
             <span className="text-[11px]">Posts</span>
           </button>
 
-          {/* Profile */}
           <button
             onClick={() => go("/profile")}
             className={
@@ -179,7 +208,6 @@ export default function ClientLayout() {
             <span className="text-[11px]">Profil</span>
           </button>
         </div>
- 
       </div>
     </div>
   );

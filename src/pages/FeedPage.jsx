@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { getCities, getPosts, getPostsByCity, getUsers } from "../api/jsonApi";
-import PostCard from "./PostCard"; 
+import PostCard from "./PostCard";
 
 export default function FeedPage() {
   const [cities, setCities] = useState([]);
   const [posts, setPosts] = useState([]);
- 
+
   const [selectedCityId, setSelectedCityId] = useState("all");
   const [loading, setLoading] = useState(false);
 
@@ -28,26 +28,31 @@ export default function FeedPage() {
   }, []);
 
   // recharger les donner des posts une seul fois 
-  useEffect(() => {
-    setLoading(true);
 
-    if (selectedCityId === "all") {
-      getPosts()
-        .then((res) => setPosts(res.data))
-        .catch(() => setPosts([]))
-        .finally(() => setLoading(false));
-    } else {
-      getPostsByCity(selectedCityId)
-        .then((res) => setPosts(res.data))
-        .catch(() => setPosts([]))
-        .finally(() => setLoading(false));
+
+  useEffect(() => {
+    async function fetchPosts() {
+      setLoading(true);
+      if (selectedCityId === "all") {
+        const res = await getPosts();
+        setPosts(res.data);
+      } else {
+        const res = await getPostsByCity(selectedCityId);
+        setPosts(res.data);
+        console.log("Posts for city", selectedCityId, res.data);
+      }
+      setLoading(false);
     }
+    fetchPosts();
   }, [selectedCityId]);
 
   // retourner le nom de ville par l'id
   function cityNameById(id) {
     for (let i = 0; i < cities.length; i++) {
-      if (String(cities[i].id) === String(id)) return cities[i].name;
+      // cityId peut être un objet {_id, name} ou juste l'ID
+      const cityIdStr = String(cities[i].id);
+      const postCityIdStr = typeof id === "object" ? String(id?._id || id?.id) : String(id);
+      if (cityIdStr === postCityIdStr) return cities[i].name;
     }
     return "Unknown";
   }
@@ -75,7 +80,7 @@ export default function FeedPage() {
           ))}
         </select>
       </div>
- 
+
       {loading ? (
         <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-white/70">
           Loading posts...
@@ -97,7 +102,17 @@ export default function FeedPage() {
             return tb - ta;
           })
           .map((p) => (
-            <PostCard key={p.id} post={p} cityName={cityNameById(p.cityId)} user={users.find((u) => u.id === p.userId)} />
+            <PostCard
+              key={p.id}
+              post={p}
+              cityName={cityNameById(p.cityId)}
+              user={users.find((u) => u.id === p.userId)}
+              onLikeChange={(updatedPost) => {
+                setPosts((old) =>
+                  old.map((x) => (x.id === updatedPost.id ? updatedPost : x))
+                );
+              }}
+            />
           ))}
       </div>
 

@@ -19,7 +19,8 @@ export default function ManageSpots() {
   function loadCities() {
     return getCities()
       .then((res) => {
-        const arr = res.data || [];
+        const raw = res.data || [];
+        const arr = raw.map(c => ({ ...c, id: c._id || c.id }));
         setCities(arr);
         if (arr.length > 0) setCityId(String(arr[0].id));
       })
@@ -28,10 +29,21 @@ export default function ManageSpots() {
 
   function loadSpots(filterId) {
     setLoading(true);
-    const params = filterId && filterId !== "all" ? { cityId: Number(filterId) } : undefined;
 
-    getSpots(params)
-      .then((res) => setSpots(res.data || []))
+    getSpots()
+      .then((res) => {
+        let arr = res.data || [];
+        // Filtrer côté client si un filtre est appliqué
+        if (filterId && filterId !== "all") {
+          arr = arr.filter(spot => {
+            const spotCityIdStr = typeof spot.cityId === "object" 
+              ? String(spot.cityId?._id || spot.cityId?.id) 
+              : String(spot.cityId);
+            return spotCityIdStr === String(filterId);
+          });
+        }
+        setSpots(arr);
+      })
       .catch(() => setSpots([]))
       .finally(() => setLoading(false));
   }
@@ -49,7 +61,8 @@ export default function ManageSpots() {
     if (!cityId || !name.trim()) return;
 
     const newSpot = {
-      cityId: Number(cityId),
+      // send string ObjectId (backend expects this), not a number
+      cityId: String(cityId),
       name: name.trim(),
       area: area.trim(),
       type,
@@ -66,7 +79,7 @@ export default function ManageSpots() {
       setDurationMin(60);
       loadSpots(cityFilter);
     } catch (e2) {
-      alert("Error: cannot add spot");
+      alert("Error: cannot add spot ");
       setLoading(false);
     }
   }
@@ -80,13 +93,15 @@ export default function ManageSpots() {
       await deleteSpot(id);
       loadSpots(cityFilter);
     } catch (e2) {
-      alert("Error: cannot delete spot");
+      alert("Error: cannot delete spot ");
       setLoading(false);
     }
   }
 
   function cityNameById(id) {
-    const c = cities.find((x) => String(x.id) === String(id));
+    // Gérer cityId comme objet ou string
+    const idStr = typeof id === "object" ? String(id?._id || id?.id) : String(id);
+    const c = cities.find((x) => String(x.id) === idStr);
     return c ? c.name : "Unknown";
   }
 
@@ -193,8 +208,7 @@ export default function ManageSpots() {
       <div className="mt-4 overflow-auto rounded-2xl border border-white/10">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-900/60 text-white/80">
-            <tr>
-              <th className="text-left p-3">ID</th>
+            <tr> 
               <th className="text-left p-3">City</th>
               <th className="text-left p-3">Name</th>
               <th className="text-left p-3">Type</th>
@@ -204,8 +218,7 @@ export default function ManageSpots() {
           </thead>
           <tbody>
             {spots.map((s) => (
-              <tr key={s.id} className="border-t border-white/10">
-                <td className="p-3 text-white/70">{s.id}</td>
+              <tr key={s.id} className="border-t border-white/10"> 
                 <td className="p-3 text-white/80">{cityNameById(s.cityId)}</td>
                 <td className="p-3 font-bold">{s.name}</td>
                 <td className="p-3 text-white/70">{s.type}</td>

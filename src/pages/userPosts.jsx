@@ -9,7 +9,9 @@ export default function MyPostsPage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("currentUser")); 
+  const user = JSON.parse(localStorage.getItem("currentUser") || "null");
+  
+  // Load cities on mount
   useEffect(() => {
     getCities()
       .then((res) => setCities(res.data || []))
@@ -21,20 +23,36 @@ export default function MyPostsPage() {
     getPosts()
       .then((res) => {
         const all = res.data || [];
-        // Juste les posts de l'utilisateur connecté 
-        const userPost = all.filter((p) => String(p.userId) === String(user?.id)); 
+        // Juste les posts de l'utilisateur connecté
+        // userId peuvent être un objet avec _id ou juste l'ID
+        const userIdStr = String(user?.id || "");
+        const userPost = all.filter((p) => {
+          const postUserIdStr = typeof p.userId === "object" 
+            ? String(p.userId?._id || p.userId?.id)
+            : String(p.userId);
+          return postUserIdStr === userIdStr;
+        });
         setPosts(userPost);
       })
       .catch(() => setPosts([]))
       .finally(() => setLoading(false));
   }
 
+  // Load user's posts on mount
   useEffect(() => {
     loadPosts();
   }, []);
-
+  
+  if (!user || !user.id) {
+    return (
+      <div className="rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm">
+        <b>Error:</b> Please login to view your posts
+      </div>
+    );
+  }
+ 
   function cityNameById(id) {
-    const c = cities.find((x) => String(x.id) === String(id));
+    const c = cities.find((c) => String(c.id) === String(id)); 
     return c ? c.name : "Unknown";
   }
 
@@ -74,7 +92,7 @@ export default function MyPostsPage() {
             <MyPostCard
               key={p.id}
               post={p}
-              cityName={cityNameById(p.cityId)}
+              cityName={cityNameById(p.cityId.id)}
               onChanged={loadPosts}  
             />
           ))}

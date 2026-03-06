@@ -44,7 +44,9 @@ export default function AdminDashboard() {
   }, [posts]);
 
   function cityNameById(id) {
-    const c = cities.find((x) => String(x.id) === String(id));
+    // Gérer cityId comme objet ou string
+    const idStr = typeof id === "object" ? String(id?._id || id?.id) : String(id);
+    const c = cities.find((x) => String(x.id) === idStr);
     return c ? c.name : "Unknown";
   }
 
@@ -112,8 +114,14 @@ export default function AdminDashboard() {
 
           <div className="mt-3 space-y-2">
             {cities.slice(0, 8).map((c) => {
-              const spotsCount = spots.filter((s) => String(s.cityId) === String(c.id)).length;
-              const scamsCount = scams.filter((s) => String(s.cityId) === String(c.id)).length;
+              const spotsCount = spots.filter((s) => {
+                const sCityIdStr = typeof s.cityId === "object" ? String(s.cityId?._id || s.cityId?.id) : String(s.cityId);
+                return sCityIdStr === String(c.id);
+              }).length;
+              const scamsCount = scams.filter((s) => {
+                const sCityIdStr = typeof s.cityId === "object" ? String(s.cityId?._id || s.cityId?.id) : String(s.cityId);
+                return sCityIdStr === String(c.id);
+              }).length;
 
               const warn = spotsCount < 2 || scamsCount < 1;
 
@@ -151,7 +159,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between gap-2">
           <div>
             <div className="font-extrabold">Recent Posts</div>
-            <div className="text-sm text-white/60">Last 5 community/AI posts</div>
+            <div className="text-sm text-white/60">Last 5 community posts</div>
           </div>
           <Link
             className="rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm hover:bg-white/10"
@@ -167,7 +175,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="font-bold">{p.title}</div>
                 <div className="text-xs text-white/60">
-                  📍 {cityNameById(p.cityId)} • ❤️ {p.likes.nbLikes || 0} • {p.type || "post"}
+                  📍 {cityNameById(p.cityId)} • {p.type || "post"}
                 </div>
               </div>
               <div className="text-sm text-white/70 mt-1">

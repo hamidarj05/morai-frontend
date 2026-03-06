@@ -6,8 +6,8 @@ import { Link } from "react-router-dom";
 export default function Login() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("client@demo.com");
-  const [password, setPassword] = useState("1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +21,7 @@ export default function Login() {
       if (user.role === "admin") navigate("/admin");
       else navigate("/feed");
     } catch (e2) {
-      setError(String(e2.message || e2));
+      setError(String("Les informations Incorrecte"));
     }
 
     setLoading(false);

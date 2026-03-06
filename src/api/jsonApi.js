@@ -1,6 +1,6 @@
+import { all } from "axios";
 import axiosClient from "./axiosClient";
 
-// Returner Data De json-server 
 
 // ===== gerer les users =====
 export function getUsers() {
@@ -19,12 +19,10 @@ export function deleteCity(id) {
 }
 // ===== gerer les spots =====
 export function getSpotsByCity(cityId) {
-  return axiosClient.get("/spots", {
-    params: { cityId },
-  });
+  return axiosClient.get(`/spots/city/${cityId}`);
 }
-export function getSpots(params) { 
-  return axiosClient.get("/spots", { params });
+export function getSpots() { 
+  return axiosClient.get("/spots");
 }
 export function createSpot(data) {
   return axiosClient.post("/spots", data);
@@ -34,13 +32,11 @@ export function deleteSpot(id) {
 }
 // ===== gerer les scams =====
 export function getScamsByCity(cityId) {
-  return axiosClient.get("/scams", {
-    params: { cityId },
-  });
+  return axiosClient.get(`/scams/city/${cityId}`);
 }
 
-export function getScams(params) { 
-  return axiosClient.get("/scams", { params });
+export function getScams() { 
+  return axiosClient.get("/scams");
 }
 export function createScam(data) {
   return axiosClient.post("/scams", data);
@@ -52,10 +48,38 @@ export function deleteScam(id) {
 export function getPosts() {
   return axiosClient.get("/posts");
 } 
-export function getPostsByCity(cityId) {
-  return axiosClient.get("/posts", {
-    params: { cityId },
+
+
+export function uploadPostImage(file) {
+  const form = new FormData();
+  form.append('image', file);
+  return axiosClient.post('/posts/upload', form).then(res => {
+    
+    const apiBase = axiosClient.defaults.baseURL || "http://localhost:5000/api";
+    const serverBase = apiBase.replace(/\/api\/?$/, '');
+    if (res.data.url && !res.data.url.startsWith('http')) {
+      res.data.url = serverBase + res.data.url;
+    }
+    return res;
   });
+}
+export  async function getPostsByCity(cityId) {
+  try {
+    const res = await getPosts();
+    const allPosts = res.data || [];
+
+    const filtered = allPosts.filter(post => post.cityId.id === cityId || post.cityId === cityId);
+    console.log("Filtered posts for city", cityId, filtered);
+    return {
+      ...res,
+      data: filtered
+    };
+  } catch (error) {
+    return {
+      data: [],
+      error
+    };
+  }
 } 
 
 export function createPost(data) {
@@ -69,6 +93,11 @@ export function updatePost(postId, data) {
   return axiosClient.patch(`/posts/${postId}`, data);
 }
 
+// like/unlike toggling
+export function toggleLike(postId) {
+  return axiosClient.patch(`/posts/${postId}/like`);
+}
+
 // ===== gerer les commentaires =====
 export function getComments() {
   return axiosClient.get("/comments");
@@ -78,19 +107,15 @@ export function deleteComment(commentId) {
   return axiosClient.delete(`/comments/${commentId}`);
 }
 export function getCommentsByPost(postId) {
-  return axiosClient.get("/comments", {
-    params: { postId },
-  });
+  return axiosClient.get(`/comments/post/${postId}`);
 }
 
 export function addComment(data) {
   return axiosClient.post("/comments", data);
 }
 // ===== CHATS AI =====
-export function getChatsAi({cityId, userId}) {
-  return axiosClient.get("/chatsAi", {
-    params: { cityId, userId },
-  });
+export function getChatsAi(cityId) {
+  return axiosClient.get(`/chatsAi/${cityId}`);
 }
 
 export function addChatAiMessage(data) {

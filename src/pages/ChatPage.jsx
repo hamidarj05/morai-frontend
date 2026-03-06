@@ -52,7 +52,7 @@ export default function ChatPage() {
     }
 
     setError("");
-    getChatsAi({cityId, userId})
+    getChatsAi(cityId)
       .then((res) => setMessages(res.data || []))
       .catch(() => setMessages([])); 
   }, [cityId, userId]);
@@ -122,8 +122,7 @@ export default function ChatPage() {
   // enregistrer un message dans db.json et mettre à jour l'interface utilisateur
   async function saveMessage(role, text) {
     const msg = {
-      cityId: Number(cityId),
-      userId: String(userId),
+      cityId: String(cityId),
       role,
       text,
       createdAt: new Date().toISOString(),
@@ -165,7 +164,7 @@ export default function ChatPage() {
       await saveMessage("user", text);
 
       const prompt = buildPrompt(text);
-      const reply = await askGemini(prompt);
+      const reply = await askGemini(prompt); 
 
       await saveMessage("assistant", reply);
     } catch (e) {
@@ -204,7 +203,8 @@ export default function ChatPage() {
         `Salam ${currentUser.name} 😄 I’m your guide for ${cityName}.\n• Best things to do\n• 1-day plan\n• Food to try\n• Safety tip`
       );
     } catch (e) {
-      setError("Cannot save start message (check json-server).");
+      setError("Cannot save start message ");
+      console.log(e);
     }
   }
 
@@ -247,11 +247,7 @@ export default function ChatPage() {
                 </option>
               ))}
             </select>
-          </div>
-
-          <div className="text-sm text-white/60">
-            Spots: {spots.length} • Scams: {scams.length}
-          </div>
+          </div> 
         </div>
 
         <div className="flex gap-2">

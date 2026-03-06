@@ -1,63 +1,33 @@
-# Morai Guide 🇲🇦🤖
+# MorAi Frontend
 
-**Morai Guide** est une application web intelligente dédiée à la découverte du Maroc.  
-Elle combine **intelligence artificielle**, **chat interactif** et **contenu communautaire** pour offrir aux utilisateurs une expérience moderne, fluide et informative autour des villes, lieux, conseils de sécurité et expériences de voyage au Maroc.
+Ce dossier contient le frontend de l'application MorAi, développé avec ReactJS.
 
----
+## Fonctionnalités principales
+- Authentification utilisateur (login, inscription)
+- Fil d’actualité (posts)
+- Chat AI (assistant local)
+- Gestion des villes, spots, arnaques
+- Tableau de bord admin
 
-## 🚀 Fonctionnalités principales
+## Démarrage
+1. Installer les dépendances :
+	```bash
+	npm install
+	```
+2. Lancer le serveur de développement :
+	```bash
+	npm start
+	```
 
-- 💬 Chat intelligent avec IA (Gemini)  
-- 🏙️ Informations détaillées sur les villes du Maroc  
-- 📍 Gestion des spots et lieux touristiques  
-- ⚠️ Sensibilisation aux scams / arnaques courantes  
-- 📰 Feed de posts communautaires  
-- ✍️ Création et gestion de posts utilisateurs  
-- 🔐 Authentification (login / register)  
-- 🛡️ Routes protégées (utilisateur & admin)  
-- 🧑‍💼 Dashboard administrateur (CRUD complet)  
-- 📱 Interface responsive et moderne  
+## Structure
+- `src/` : code source React
+- `public/` : fichiers statiques
 
----
-
-## 🛠️ Technologies utilisées
-
-- **React.js**
-- **JavaScript (ES6+)**
-- **CSS / Tailwind**
-- **JSON Server** (base de données locale)
-- **API Gemini** (IA conversationnelle)
-- **React Router**
-- **Variables d’environnement (.env)**
+## Configuration
+- Variables d’environnement dans `.env` (ex: REACT_APP_API_URL)
 
 ---
-
-## 📁 Structure du projet
-morocco-ai-guide/
-├─ db/
-│ └─ db.json
-│
-├─ public/
-│
-├─ src/
-│ ├─ db/
-│ │ └─ db.json
-│ │
-│ ├─ api/
-│ │ ├─ geminiApi.js
-│ │ ├─ jsonApi.js
-│ │ └─ uploadHelper.js
-│ │
-│ ├─ auth/
-│ │ ├─ Login.jsx
-│ │ ├─ Register.jsx
-│ │ └─ authService.js
-│ │
-│ ├─ layouts/
-│ │ ├─ ClientLayout.jsx
-│ │ ├─ AdminLayout.jsx
-│ │ └─ AuthLayout.jsx
-│ │
+Pour toute question, voir le README global à la racine du projet.
 │ ├─ routes/
 │ │ ├─ AppRoutes.jsx
 │ │ ├─ PrivateRoute.jsx
@@ -110,7 +80,7 @@ REACT_APP_GEMINI_KEY=your_api_key_here
 
 ### 4️⃣ Lancer le serveur JSON
 ```bash
-npx json-server --watch db/db.json --port 3001
+(Deprecated) npx json-server --watch db/db.json --port 3001  <!-- legacy mock server, backend now uses Express+Mongo -->
 ```
 
 ### 5️⃣ Lancer l’application

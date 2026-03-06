@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { deleteComment, deletePost, getComments, getPosts } from "../../api/jsonApi";
+import { deleteComment, deletePost, getComments, getPosts, getCities } from "../../api/jsonApi";
 
 export default function ManagePosts() {
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState([]);
+  const [cities, setCities] = useState([]);
 
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -11,16 +12,25 @@ export default function ManagePosts() {
   function loadData() {
     setLoading(true);
 
-    Promise.all([getPosts(), getComments()])
-      .then(([pRes, cRes]) => {
+    Promise.all([getPosts(), getComments(), getCities()])
+      .then(([pRes, cRes, citiesRes]) => {
         setPosts(pRes.data || []);
         setComments(cRes.data || []);
+        setCities(citiesRes.data || []);
       })
       .catch(() => {
         setPosts([]);
         setComments([]);
+        setCities([]);
       })
       .finally(() => setLoading(false));
+  }
+
+  function cityNameById(id) {
+    // Gérer cityId comme objet ou string
+    const idStr = typeof id === "object" ? String(id?._id || id?.id) : String(id);
+    const c = cities.find((x) => String(x.id) === idStr);
+    return c ? c.name : "Unknown";
   }
 
   useEffect(() => {
@@ -32,7 +42,7 @@ export default function ManagePosts() {
     if (!ok) return;
 
     try {
-      // supprimer tous les commentatire liier a ce post
+      // supprimer tous les commentaires liés à ce post
       for(let i=0 ; i<comments.length ; i++){
         if(comments[i].postId===postId){
           await deleteComment(comments[i].id);
@@ -40,10 +50,10 @@ export default function ManagePosts() {
       }
       await deletePost(postId);
 
-      // Refrecher  les donnees
+      // Recharger les données
       loadData();
     } catch (e) {
-      alert("Delete failed. Check json-server.");
+      alert("Delete failed. Backend may not support DELETE yet.");
     }
   }
 
@@ -90,12 +100,11 @@ export default function ManagePosts() {
       <div className="mt-4 overflow-auto rounded-2xl border border-white/10">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-900/60 text-white/80">
-            <tr>
-              <th className="text-left p-3">ID</th>
+            <tr> 
               <th className="text-left p-3">Type</th>
-              <th className="text-left p-3">CityId</th>
+              <th className="text-left p-3">City</th>
               <th className="text-left p-3">Title</th>
-              <th className="text-left p-3">Likes</th>
+              <th className="text-left p-3">—</th>
               <th className="text-left p-3">Created</th>
               <th className="text-left p-3">Action</th>
             </tr>
@@ -103,15 +112,14 @@ export default function ManagePosts() {
 
           <tbody>
             {filtered.map((p) => (
-              <tr key={p.id} className="border-t border-white/10">
-                <td className="p-3 text-white/70">{p.id}</td>
+              <tr key={p.id} className="border-t border-white/10"> 
                 <td className="p-3 text-white/80">{p.type || "-"}</td>
-                <td className="p-3 text-white/80">{p.cityId}</td>
+                <td className="p-3 text-white/80">{cityNameById(p.cityId)}</td>
                 <td className="p-3">
                   <div className="font-bold">{p.title}</div>
                   <div className="text-white/60 line-clamp-2">{p.text}</div>
                 </td>
-                <td className="p-3 text-white/80">{p.likes.nbLikes || 0}</td>
+                <td className="p-3 text-white/80">—</td>
                 <td className="p-3 text-white/70">
                   {p.createdAt ? new Date(p.createdAt).toLocaleString() : "-"}
                 </td>

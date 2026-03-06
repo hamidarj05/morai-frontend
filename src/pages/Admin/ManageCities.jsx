@@ -35,7 +35,7 @@ export default function ManageCities() {
       setRegion("");
       loadCities();
     } catch (e2) {
-      alert("Error: cannot add city (check json-server)");
+      alert("Error: cannot add city (check backend)");
       setLoading(false);
     }
   }
@@ -49,7 +49,7 @@ export default function ManageCities() {
       await deleteCity(id);
       loadCities();
     } catch (e2) {
-      alert("Error: cannot delete city");
+      alert("Error: cannot delete city (backend may not support DELETE yet)");
       setLoading(false);
     }
   }
@@ -109,8 +109,7 @@ export default function ManageCities() {
       <div className="mt-4 overflow-auto rounded-2xl border border-white/10">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-900/60 text-white/80">
-            <tr>
-              <th className="text-left p-3">ID</th>
+            <tr> 
               <th className="text-left p-3">Name</th>
               <th className="text-left p-3">Region</th>
               <th className="text-left p-3">Action</th>
@@ -118,8 +117,7 @@ export default function ManageCities() {
           </thead>
           <tbody>
             {cities.map((c) => (
-              <tr key={c.id} className="border-t border-white/10">
-                <td className="p-3 text-white/70">{c.id}</td>
+              <tr key={c.id} className="border-t border-white/10"> 
                 <td className="p-3 font-bold">{c.name}</td>
                 <td className="p-3 text-white/70">{c.region || "-"}</td>
                 <td className="p-3">

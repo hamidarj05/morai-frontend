@@ -16,7 +16,8 @@ export default function ManageScams() {
   function loadCities() {
     return getCities()
       .then((res) => {
-        const arr = res.data || [];
+        const raw = res.data || [];
+        const arr = raw.map(c => ({ ...c, id: c._id || c.id }));
         setCities(arr);
         if (arr.length > 0) setCityId(String(arr[0].id));
       })
@@ -25,10 +26,21 @@ export default function ManageScams() {
 
   function loadScams(filterId) {
     setLoading(true);
-    const params = filterId && filterId !== "all" ? { cityId: Number(filterId) } : undefined;
 
-    getScams(params)
-      .then((res) => setScams(res.data || []))
+    getScams()
+      .then((res) => {
+        let arr = res.data || [];
+        // Filtrer côté client si un filtre est appliqué
+        if (filterId && filterId !== "all") {
+          arr = arr.filter(scam => {
+            const scamCityIdStr = typeof scam.cityId === "object" 
+              ? String(scam.cityId?._id || scam.cityId?.id) 
+              : String(scam.cityId);
+            return scamCityIdStr === String(filterId);
+          });
+        }
+        setScams(arr);
+      })
       .catch(() => setScams([]))
       .finally(() => setLoading(false));
   }
@@ -46,7 +58,7 @@ export default function ManageScams() {
     if (!cityId || !title.trim() || !avoid.trim()) return;
 
     const newScam = {
-      cityId: Number(cityId),
+      cityId: String(cityId),
       title: title.trim(),
       avoid: avoid.trim()
     };
@@ -58,7 +70,7 @@ export default function ManageScams() {
       setAvoid("");
       loadScams(cityFilter);
     } catch (e2) {
-      alert("Error: cannot add scam");
+      alert("Error: cannot add scam (check backend)");
       setLoading(false);
     }
   }
@@ -72,13 +84,15 @@ export default function ManageScams() {
       await deleteScam(id);
       loadScams(cityFilter);
     } catch (e2) {
-      alert("Error: cannot delete scam");
+      alert("Error: cannot delete scam (backend may not support DELETE yet)");
       setLoading(false);
     }
   }
 
   function cityNameById(id) {
-    const c = cities.find((x) => String(x.id) === String(id));
+    // Gérer cityId comme objet ou string
+    const idStr = typeof id === "object" ? String(id?._id || id?.id) : String(id);
+    const c = cities.find((x) => String(x.id) === idStr);
     return c ? c.name : "Unknown";
   }
 
@@ -156,8 +170,7 @@ export default function ManageScams() {
       <div className="mt-4 overflow-auto rounded-2xl border border-white/10">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-900/60 text-white/80">
-            <tr>
-              <th className="text-left p-3">ID</th>
+            <tr> 
               <th className="text-left p-3">City</th>
               <th className="text-left p-3">Title</th>
               <th className="text-left p-3">Avoid</th>
@@ -166,8 +179,7 @@ export default function ManageScams() {
           </thead>
           <tbody>
             {scams.map((s) => (
-              <tr key={s.id} className="border-t border-white/10">
-                <td className="p-3 text-white/70">{s.id}</td>
+              <tr key={s.id} className="border-t border-white/10"> 
                 <td className="p-3 text-white/80">{cityNameById(s.cityId)}</td>
                 <td className="p-3 font-bold">{s.title}</td>
                 <td className="p-3 text-white/70">{s.avoid}</td>

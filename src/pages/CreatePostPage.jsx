@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
-import { createPost, getCities } from "../api/jsonApi";
+import { createPost, getCities, uploadPostImage } from "../api/jsonApi";
 import { useNavigate } from "react-router-dom";
 
 export default function CreatePostPage() {
   const navigate = useNavigate();
 
+  // All hooks must be declared unconditionally at the top
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-
-  // les valeurs des inputs 
   const [cityId, setCityId] = useState("");
   const [type, setType] = useState("moment");  
   const [title, setTitle] = useState("");
@@ -19,6 +16,8 @@ export default function CreatePostPage() {
   const [image, setImage] = useState("");  
   const [tags, setTags] = useState("");  
 
+  const user = JSON.parse(localStorage.getItem("currentUser") || "null");
+  
   // charger les villes
   useEffect(() => {
     getCities()
@@ -28,6 +27,15 @@ export default function CreatePostPage() {
       })
       .catch(() => setCities([]));
   }, []);
+
+  // Vérifier que l'utilisateur est bien connecté
+  if (!user || !user.id) {
+    return (
+      <div className="rounded-xl border border-red-400/30 bg-red-500/10 p-4">
+        <b>Error:</b> Please login to create a post
+      </div>
+    );
+  }
 
   async function submitPost(e) {
     e.preventDefault();
@@ -43,7 +51,7 @@ export default function CreatePostPage() {
       .filter((t) => t.length > 0);
 
     const newPost = {
-      cityId: Number(cityId),         
+      cityId: String(cityId),         
       userId: user.id,                      
       type,
       title: title.trim(),
@@ -59,7 +67,7 @@ export default function CreatePostPage() {
       await createPost(newPost);
       navigate("/feed"); // retourner à la page feed
     } catch (err) {
-      setError("Cannot create post. Check json-server is running.");
+      setError("Cannot create post. Check backend server is running.");
     } finally {
       setLoading(false);
     }
@@ -135,15 +143,33 @@ export default function CreatePostPage() {
         </div>
 
         <div>
-          <div className="text-xs text-white/70 mb-1">Image URL (optional)</div>
+          <div className="text-xs text-white/70 mb-1">Image (optional)</div>
           <input
+            type="file"
+            accept="image/*"
             className="w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-            placeholder="https://..."
+            onChange={async (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+              setError("");
+              setLoading(true);
+              try {
+                const res = await uploadPostImage(file);
+                setImage(res.data.url);
+              } catch (err) {
+                setError("Image upload failed");
+              } finally {
+                setLoading(false);
+              }
+            }}
           />
+          {image && (
+            <div className="mt-2">
+              <img src={image} alt="preview" className="max-h-32" />
+            </div>
+          )}
           <div className="text-[11px] text-white/60 mt-1">
-            Easiest method: paste an image URL (Unsplash, etc.).
+            Select a file to upload; it will be stored on the server.
           </div>
         </div>
 

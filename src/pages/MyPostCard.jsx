@@ -1,5 +1,5 @@
 import { useState , useEffect } from "react";
-import { deletePost, updatePost } from "../api/jsonApi";
+import { deletePost, updatePost, uploadPostImage } from "../api/jsonApi";
 import { deleteComment, getComments } from "../api/jsonApi";
 
 
@@ -11,6 +11,8 @@ export default function MyPostCard({ post, cityName, onChanged }) {
     const [text, setText] = useState(post.text || "");
     const [image, setImage] = useState(post.image || "");
     const [type, setType] = useState(post.type || "moment");
+ 
+ 
 
     const [saving, setSaving] = useState(false);
     
@@ -33,7 +35,8 @@ export default function MyPostCard({ post, cityName, onChanged }) {
             await deletePost(post.id); 
             onChanged();
         } catch (e) {
-            alert("Delete failed. Check json-server.");
+            alert("Delete failed. Try Later again.");
+            console.log(e);
         }
     }
 
@@ -55,7 +58,7 @@ export default function MyPostCard({ post, cityName, onChanged }) {
             setOpen(false);
             onChanged();
         } catch (e) {
-            alert("Update failed. Check json-server.");
+            alert("Update failed. Backend may not support PATCH yet.");
         }
         setSaving(false);
     }
@@ -77,7 +80,7 @@ export default function MyPostCard({ post, cityName, onChanged }) {
                     {post.text}
                 </div>
 
-                <div className="mt-4 flex gap-2">
+                <div className="mt-4 flex gap-2"> 
                     <button
                         onClick={() => setOpen(true)}
                         className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
@@ -149,12 +152,30 @@ export default function MyPostCard({ post, cityName, onChanged }) {
                             </div>
 
                             <div>
-                                <div className="text-xs text-white/60 mb-1">Image URL </div>
+                                <div className="text-xs text-white/60 mb-1">Image </div>
                                 <input
+                                    type="file"
+                                    accept="image/*"
                                     className="w-full rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm"
-                                    value={image}
-                                    onChange={(e) => setImage(e.target.value)}
+                                    onChange={async (e) => {
+                                        const file = e.target.files[0];
+                                        if (!file) return;
+                                        try {
+                                            setSaving(true);
+                                            const res = await uploadPostImage(file);
+                                            setImage(res.data.url);
+                                        } catch (err) {
+                                            alert('Image upload failed');
+                                        } finally {
+                                            setSaving(false);
+                                        }
+                                    }}
                                 />
+                                {image && (
+                                    <div className="mt-2">
+                                        <img src={image} alt="preview" className="max-h-24" />
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex gap-2 justify-end pt-2">
@@ -177,11 +198,7 @@ export default function MyPostCard({ post, cityName, onChanged }) {
                                 >
                                     {saving ? "Saving..." : "Save"}
                                 </button>
-                            </div>
-
-                            <div className="text-[11px] text-white/60">
-                                Tip: click outside the popup to close.
-                            </div>
+                            </div> 
                         </div>
                     </div>
                 </div>

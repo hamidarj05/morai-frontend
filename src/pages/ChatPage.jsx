@@ -54,7 +54,7 @@ export default function ChatPage() {
     setError("");
     getChatsAi(cityId)
       .then((res) => setMessages(res.data || []))
-      .catch(() => setMessages([])); 
+      .catch(() => setMessages([]));
   }, [cityId, userId]);
 
   // nom de la ville
@@ -164,7 +164,7 @@ export default function ChatPage() {
       await saveMessage("user", text);
 
       const prompt = buildPrompt(text);
-      const reply = await askGemini(prompt); 
+      const reply = await askGemini(prompt);
 
       await saveMessage("assistant", reply);
     } catch (e) {
@@ -211,7 +211,7 @@ export default function ChatPage() {
   async function clearChat() {
     if (!userId) return;
 
-    
+
     // supprimer les messages qui sont déjà enregistrés (pas temp/local)
     const realMessages = messages.filter(
       (m) =>
@@ -230,14 +230,15 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="h-full flex flex-col min-h-0">
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <div>
-          <div className="text-xl font-extrabold flex items-center gap-2 flex-wrap">
+    <div className="h-full flex flex-col min-h-0 px-2 sm:px-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+
+        <div className="flex flex-col gap-2">
+          <div className="text-lg sm:text-xl font-extrabold flex flex-wrap items-center gap-2">
             <span>Chat • {cityName}</span>
 
             <select
-              className="rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm"
+              className="rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm w-full sm:w-auto"
               value={String(cityId)}
               onChange={(e) => navigate(`/chat/${e.target.value}`)}
             >
@@ -247,19 +248,19 @@ export default function ChatPage() {
                 </option>
               ))}
             </select>
-          </div> 
+          </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <button
             onClick={startChat}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
+            className="flex-1 sm:flex-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
           >
             Start
           </button>
           <button
             onClick={clearChat}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
+            className="flex-1 sm:flex-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
           >
             Clear
           </button>
@@ -274,7 +275,7 @@ export default function ChatPage() {
 
       <div className="flex-1 min-h-0 overflow-y-auto rounded-2xl border border-white/10 bg-white/5 p-3">
         {messages.length === 0 ? (
-          <div className="text-white/70">
+          <div className="text-white/70 text-sm">
             No messages yet. Click <b><button onClick={startChat}>Start</button></b>
           </div>
         ) : (
@@ -286,7 +287,7 @@ export default function ChatPage() {
               >
                 <div
                   className={[
-                    "max-w-[85%] rounded-2xl border px-3 py-2 text-sm",
+                    "max-w-[90%] sm:max-w-[75%] rounded-2xl border px-3 py-2 text-sm",
                     "whitespace-pre-wrap break-words",
                     m.role === "user"
                       ? "bg-emerald-600/30 border-emerald-400/20"
@@ -300,7 +301,7 @@ export default function ChatPage() {
 
             {loading ? (
               <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white/70">
+                <div className="max-w-[90%] sm:max-w-[75%] rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-white/70">
                   Typing...
                 </div>
               </div>
@@ -311,9 +312,9 @@ export default function ChatPage() {
         )}
       </div>
 
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 flex items-end gap-2">
         <textarea
-          className="flex-1 min-h-[44px] max-h-[120px] resize-y rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm outline-none"
+          className="flex-1 min-h-[44px] max-h-[120px] resize-none rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm outline-none"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={keyDown}
@@ -323,7 +324,7 @@ export default function ChatPage() {
           onClick={send}
           disabled={loading}
           className={[
-            "rounded-2xl px-4 py-3 text-sm font-extrabold",
+            "rounded-2xl px-4 py-3 text-sm font-extrabold whitespace-nowrap",
             loading
               ? "bg-emerald-500/40 text-white/70 cursor-not-allowed"
               : "bg-emerald-500 hover:bg-emerald-400 text-slate-950",

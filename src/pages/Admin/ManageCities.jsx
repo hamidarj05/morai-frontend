@@ -35,7 +35,7 @@ export default function ManageCities() {
       setRegion("");
       loadCities();
     } catch (e2) {
-      alert("Error: cannot add city (check backend)");
+      alert("Error: cannot add city  ");
       setLoading(false);
     }
   }
@@ -49,7 +49,7 @@ export default function ManageCities() {
       await deleteCity(id);
       loadCities();
     } catch (e2) {
-      alert("Error: cannot delete city (backend may not support DELETE yet)");
+      alert("Error: cannot delete city  ");
       setLoading(false);
     }
   }

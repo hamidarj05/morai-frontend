@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { askGemini } from "../api/geminiApi";
+import { askGemini } from "../api/jsonApi";
 import { getCities, getScamsByCity, getSpotsByCity, getChatsAi, addChatAiMessage, deleteChatAiMessage } from "../api/jsonApi";
 
 export default function ChatPage() {
@@ -88,13 +88,13 @@ export default function ChatPage() {
     const lang = isArabic(userText) ? "Arabic" : "English";
 
     const prompt =
-      `You are a friendly Moroccan local guide chatting on WhatsApp.\n` +
+      `You are a friendly Moroccan local guide chatting on our app.\n` +
       `Your tone is natural, helpful, and concise.\n` +
       `Language: ${lang}\n\n` +
       `STRICT RULES:\n` +
       `- Talk ONLY about the city: ${cityName}\n` +
       `- Cities allowed in this app: ${allowedCities.join(", ")}\n` +
-      `- If the user asks about another city, reply exactly: "This city is not available in the app yet."\n` +
+      `- If the user asks about another city, reply exactly: "Ask about ${cityName}."\n` +
       `- NEVER invent place names.\n` +
       `- Use ONLY the places from SPOTS when mentioning locations.\n` +
       `- You MAY talk about food, plans, tips, or activities, but ONLY if they are clearly related to ${cityName}.\n\n` +
@@ -175,7 +175,7 @@ export default function ChatPage() {
         {
           id: "local-" + Date.now(),
           role: "assistant",
-          text: "Sorry 😅 I can’t reply now. Check API key / internet.",
+          text: "Sorry 😅 I can’t reply now, try again later.",
           createdAt: new Date().toISOString(),
         },
       ]);

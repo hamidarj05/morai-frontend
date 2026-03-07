@@ -79,7 +79,7 @@ export default function ManageSpots() {
       setDurationMin(60);
       loadSpots(cityFilter);
     } catch (e2) {
-      alert("Error: cannot add spot ");
+      alert("Error: cannot add spot , try again later");
       setLoading(false);
     }
   }
@@ -93,7 +93,7 @@ export default function ManageSpots() {
       await deleteSpot(id);
       loadSpots(cityFilter);
     } catch (e2) {
-      alert("Error: cannot delete spot ");
+      alert("Error: cannot delete spot , try again later");
       setLoading(false);
     }
   }

@@ -53,7 +53,7 @@ export default function ManagePosts() {
       // Recharger les données
       loadData();
     } catch (e) {
-      alert("Delete failed. Backend may not support DELETE yet.");
+      alert("Delete failed. Try again.");
     }
   }
 

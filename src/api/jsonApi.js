@@ -20,7 +20,7 @@ export function deleteCity(id) {
 export function getSpotsByCity(cityId) {
   return axiosClient.get(`/spots/city/${cityId}`);
 }
-export function getSpots() { 
+export function getSpots() {
   return axiosClient.get("/spots");
 }
 export function createSpot(data) {
@@ -34,7 +34,7 @@ export function getScamsByCity(cityId) {
   return axiosClient.get(`/scams/city/${cityId}`);
 }
 
-export function getScams() { 
+export function getScams() {
   return axiosClient.get("/scams");
 }
 export function createScam(data) {
@@ -46,14 +46,14 @@ export function deleteScam(id) {
 // ===== gerer les posts =====
 export function getPosts() {
   return axiosClient.get("/posts");
-} 
+}
 
 
 export function uploadPostImage(file) {
   const form = new FormData();
   form.append('image', file);
   return axiosClient.post('/posts/upload', form).then(res => {
-    
+
     const apiBase = axiosClient.defaults.baseURL || "http://localhost:5000/api";
     const serverBase = apiBase.replace(/\/api\/?$/, '');
     if (res.data.url && !res.data.url.startsWith('http')) {
@@ -62,7 +62,7 @@ export function uploadPostImage(file) {
     return res;
   });
 }
-export  async function getPostsByCity(cityId) {
+export async function getPostsByCity(cityId) {
   try {
     const res = await getPosts();
     const allPosts = res.data || [];
@@ -79,7 +79,7 @@ export  async function getPostsByCity(cityId) {
       error
     };
   }
-} 
+}
 
 export function createPost(data) {
   return axiosClient.post("/posts", data);
@@ -123,4 +123,8 @@ export function addChatAiMessage(data) {
 
 export function deleteChatAiMessage(id) {
   return axiosClient.delete(`/chatsAi/${id}`);
+}
+export async function askGemini(prompt) {
+  const res = await axiosClient.post("/geminiChat", { prompt });
+  return res.data.reply;
 }

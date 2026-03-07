@@ -70,7 +70,7 @@ export default function ManageScams() {
       setAvoid("");
       loadScams(cityFilter);
     } catch (e2) {
-      alert("Error: cannot add scam (check backend)");
+      alert("Error: cannot add scam  ");
       setLoading(false);
     }
   }
@@ -84,7 +84,7 @@ export default function ManageScams() {
       await deleteScam(id);
       loadScams(cityFilter);
     } catch (e2) {
-      alert("Error: cannot delete scam (backend may not support DELETE yet)");
+      alert("Error: cannot delete scam");
       setLoading(false);
     }
   }

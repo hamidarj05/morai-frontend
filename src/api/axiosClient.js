@@ -1,7 +1,7 @@
 import axios from "axios";
  
 const rawBase = process.env.REACT_APP_API_URL || "";
-const baseURL = rawBase.trim() || "http://localhost:5000/api";
+const baseURL = rawBase.trim() || "/api";
 console.log("Axios baseURL:", baseURL);
 
 const axiosClient = axios.create({

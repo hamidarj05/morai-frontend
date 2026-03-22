@@ -54,7 +54,7 @@ export function uploadPostImage(file) {
   form.append('image', file);
   return axiosClient.post('/posts/upload', form).then(res => {
 
-    const apiBase = axiosClient.defaults.baseURL || "http://localhost:5000/api";
+    const apiBase = axiosClient.defaults.baseURL || "/api";
     const serverBase = apiBase.replace(/\/api\/?$/, '');
     if (res.data.url && !res.data.url.startsWith('http')) {
       res.data.url = serverBase + res.data.url;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { addComment, getCommentsByPost, toggleLike } from "../api/jsonApi";
 import { getCurrentUser } from "../auth/authService";
 

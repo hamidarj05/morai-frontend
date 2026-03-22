@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getCities, getPosts } from "../api/jsonApi";
 import { useNavigate } from "react-router-dom";
 import MyPostCard from "./MyPostCard";
@@ -18,7 +18,7 @@ export default function MyPostsPage() {
       .catch(() => setCities([]));
   }, []);
 
-  function loadPosts() {
+  const loadPosts = useCallback(() => {
     setLoading(true);
     getPosts()
       .then((res) => {
@@ -36,12 +36,12 @@ export default function MyPostsPage() {
       })
       .catch(() => setPosts([]))
       .finally(() => setLoading(false));
-  }
+  }, [user?.id]);
 
   // Load user's posts on mount
   useEffect(() => {
     loadPosts();
-  }, []);
+  }, [loadPosts]);
   
   if (!user || !user.id) {
     return (
